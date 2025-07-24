@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Voting System</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        .navbar { background-color: #020024; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { color: white; font-size: 24px; font-weight: bold; margin-left: 20px; }
+        .logo span { color: orange; }
+        .nav-links { display: flex; gap: 20px; margin-right: 20px; }
+        .nav-links a { background-color: #4ef5c4; color: black; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold; }
+        .countdown { text-align: center; padding: 10px; background-color: #ffcc00; font-size: 20px; font-weight: bold; }
+        body { text-align: center; margin: 20px; }
+        h1 { margin-top: 20px; }
+        table { width: 90%; margin: auto; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid black; padding: 10px; text-align: center; color: #333; }
+        th { background-color: #004080; color: white; }
+        img { width: 50px; height: 50px; border-radius: 50%; }
+        .party-logo { width: 40px; height: 40px; }
+        .vote-btn { background-color: green; color: white; padding: 8px; border: none; cursor: pointer; border-radius: 5px; }
+        .vote-btn:disabled { background-color: gray; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <div class="countdown" id="countdown">Election Ends In: </div>
+    <div class="navbar">
+        <div class="logo">Online <span>Voting</span></div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+        </div>
+    </div>
+    <h1>Voter List</h1>
+    <table>
+        <tr>
+            <th>Sr. No.</th>
+            <th>Image</th>
+            <th>Party</th>
+            <th>Name</th>
+            <th>Vote</th>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td><img src="candidate1.jpg" alt="Siddaramaiah"></td>
+            <td><img src="logo1.jpg" alt="Congress" class="party-logo"></td>
+            <td>Siddaramaiah</td>
+            <td><button class="vote-btn" data-party="Congress">Vote</button></td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td><img src="candidate2.jpg" alt="Basavaraj Bommai"></td>
+            <td><img src="logo2.jpg" alt="BJP" class="party-logo"></td>
+            <td>Basavaraj Bommai</td>
+            <td><button class="vote-btn" data-party="BJP">Vote</button></td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td><img src="candidate4.jpg" alt="H.D. Kumaraswamy"></td>
+            <td><img src="logo3.jpg" alt="JDS" class="party-logo"></td>
+            <td>H.D. Kumaraswamy</td>
+            <td><button class="vote-btn" data-party="JDS">Vote</button></td>
+        </tr>
+    </table>
+
+    <script type="module">
+        import { db, auth } from './firebase-config.js';
+        import { doc, getDoc, updateDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+
+        // Add this at the beginning of your script
+        console.log("Auth state:", auth.currentUser);
+
+        auth.onAuthStateChanged(user => {
+            console.log("Auth state changed:", user);
+            if (user) {
+                console.log("User is logged in:", user.email);
+            } else {
+                console.log("No user logged in, redirecting to login");
+                window.location.href = 'Login.html';
+            }
+        });
+
+        // Add click event listeners to all vote buttons
+        document.querySelectorAll('.vote-btn').forEach(button => {
+            button.addEventListener('click', async function() {
+                const party = this.getAttribute('data-party');
+                await castVote(party);
+            });
+        });
+
+        async function castVote(party) {
+            console.log("Attempting to cast vote for party:", party);
+            
+            if (!auth.currentUser) {
+                console.log("No user logged in");
+                alert("Please login to vote!");
+                window.location.href = 'Login.html';
+                return;
+            }
+
+            console.log("Current user:", auth.currentUser.email);
+
+            let confirmation = confirm("Are you sure you want to cast your vote?");
+            if (confirmation) {
+                try {
+                    console.log("Checking if user has voted...");
+                    const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
+                    
+                    if (!userDoc.exists()) {
+                        console.log("User document not found");
+                        alert("User profile not found!");
+                        return;
+                    }
+
+                    console.log("User data:", userDoc.data());
+
+                    if (userDoc.data().hasVoted) {
+                        console.log("User has already voted");
+                        alert("You have already voted!");
+                        disableButtonsIfVoted();
+                        return;
+                    }
+
+                    console.log("Recording vote...");
+                    // Record the vote
+                    const voteRef = doc(db, "votes", party);
+                    const voteDoc = await getDoc(voteRef);
+
+                    if (voteDoc.exists()) {
+                        console.log("Updating existing vote count");
+                        await updateDoc(voteRef, {
+                            count: voteDoc.data().count + 1
+                        });
+                    } else {
+                        console.log("Creating new vote record");
+                        await setDoc(voteRef, { count: 1 });
+                    }
+
+                    console.log("Updating user voting status...");
+                    // Update user's voting status
+                    await updateDoc(doc(db, "users", auth.currentUser.uid), {
+                        hasVoted: true,
+                        votedFor: party,
+                        votedAt: new Date().toISOString()
+                    });
+
+                    console.log("Vote cast successfully");
+                    alert("Vote Cast Successfully!");
+                    disableButtonsIfVoted();
+                } catch (error) {
+                    console.error("Error casting vote:", error);
+                    alert("Error casting vote: " + error.message);
+                }
+            }
+        }
+
+        async function disableButtonsIfVoted() {
+            if (auth.currentUser) {
+                const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
+                if (userDoc.data().hasVoted) {
+                    document.querySelectorAll('.vote-btn').forEach(btn => {
+                        btn.innerText = "You have already voted";
+                        btn.disabled = true;
+                    });
+                }
+            }
+        }
+
+        // Election Countdown Timer
+        const electionEndTime = new Date("2025-07-19T21:16:00").getTime(); 
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const timeLeft = electionEndTime - now;
+            if (timeLeft <= 0) {
+                document.getElementById("countdown").innerText = "Election has ended!";
+                document.querySelectorAll('.vote-btn').forEach(btn => btn.disabled = true);
+                return;
+            }
+            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            document.getElementById("countdown").innerText = 
+                `Election Ends In: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+        }
+        setInterval(updateCountdown, 1000);
+        updateCountdown(); // Initial call
+    </script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "voting-project",
+  "version": "1.0.0",
+  "main": "firebase-config.js",
+  "scripts": {
+    "test": "run"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "firebase": "^11.4.0"
+  }
+}

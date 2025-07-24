@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voter Registration</title>
+    <style>
+      body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-image: url('voter.jpg');  
+    background-repeat: no-repeat;
+    background-size: cover;  
+    background-position: center;  
+    font-family: Arial, sans-serif;
+}
+
+        form {
+            border: 2px solid black;
+            padding: 20px;
+            width: 400px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            text-align: center;
+        }
+        h1 {
+            color: #004080;
+        }
+        label {
+            display: block;
+            margin: 10px 0;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        input {
+            width: 90%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .btn {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .submit-btn {
+            background: #004080;
+            color: white;
+        }
+        .reset-btn {
+            background: #ccc;
+        }
+        .links {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .links a {
+            text-decoration: none;
+            color: #004080;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <form id="registrationForm">
+        <h1>Voter Registration</h1>
+
+        <label>
+            <input type="text" id="name" placeholder="Enter your full name" required>
+        </label>
+
+        <label>
+            <input type="text" id="voter_id" placeholder="Enter your Voter ID" required>
+        </label>
+
+        <label>
+            <input type="text" id="aadhaar" placeholder="Enter your Aadhaar Number" required>
+        </label>
+
+        <label>
+            <input type="password" id="password" placeholder="Enter password" required>
+        </label>
+
+        <label>
+            <input type="email" id="email" placeholder="Enter your email" required>
+        </label>
+
+        <label>
+            <input type="tel" id="phone" placeholder="Enter your phone number" required>
+        </label>
+
+        <button type="button" class="btn submit-btn" id="registerButton">Register</button>
+        <button type="reset" class="btn reset-btn">Reset</button>
+
+        <div class="links">
+            <a href="index.html">Home</a>
+            <a href="Login.html">Login</a>
+        </div>
+    </form>
+
+    <script type="module">
+        import { registerUser } from './auth.js';
+
+        document.getElementById('registerButton').addEventListener('click', async function() {
+            let name = document.getElementById("name").value.trim();
+            let voterID = document.getElementById("voter_id").value.trim();
+            let aadhaar = document.getElementById("aadhaar").value.trim();
+            let password = document.getElementById("password").value.trim();
+            let email = document.getElementById("email").value.trim();
+            let phone = document.getElementById("phone").value.trim();
+
+            // Validation checks
+            if (!name || !voterID || !aadhaar || !password || !email || !phone) {
+                alert("All fields are required!");
+                return;
+            }
+
+            // Voter ID: Should be alphanumeric and 10 characters long
+            if (!/^[A-Z0-9]{10}$/i.test(voterID)) {
+                alert("Invalid Voter ID! It must be 10 alphanumeric characters.");
+                return;
+            }
+
+            // Aadhaar: Should be exactly 12 digits
+            if (!/^\d{12}$/.test(aadhaar)) {
+                alert("Invalid Aadhaar Number! It must be 12 digits.");
+                return;
+            }
+
+            // Email Validation
+            if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+                alert("Invalid Email Address!");
+                return;
+            }
+
+            // Phone Number: Should be 10 digits
+            if (!/^\d{10}$/.test(phone)) {
+                alert("Invalid Phone Number! It must be 10 digits.");
+                return;
+            }
+
+            // Password validation
+            if (password.length < 6) {
+                alert("Password must be at least 6 characters long!");
+                return;
+            }
+
+            try {
+                await registerUser(name, voterID, aadhaar, password, email, phone);
+                alert("Successfully Registered!");
+                window.location.href = 'index.html';
+            } catch (error) {
+                // More detailed error handling
+                if (error.code === 'auth/email-already-in-use') {
+                    alert("This email is already registered!");
+                } else if (error.code === 'auth/invalid-email') {
+                    alert("Invalid email format!");
+                } else if (error.code === 'auth/weak-password') {
+                    alert("Password is too weak! It must be at least 6 characters long.");
+                } else {
+                    alert("Registration failed: " + error.message);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

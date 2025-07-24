@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Password - Online Voting System</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+	    display: flex;
+ 
+    align-items: center;
+    height: 100vh;
+    background-image: url('voter.jpg');  
+    background-repeat: no-repeat;
+    background-size: cover;  
+    background-position: center;
+            align-items: center;
+            height: 100vh;
+            background-image: url('voter.jpg'); /* Add your background image */
+            font-family: Arial, sans-serif;
+        }
+
+        form {
+            border: 2px solid black;
+            padding: 20px;
+            margin: auto;
+            width: 350px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #004080;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 90%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .reset-btn {
+            background: #004080;
+            color: white;
+        }
+
+        .clear-btn {
+            background: #ccc;
+        }
+
+        .back-link {
+            display: block;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .back-link a {
+            color: #004080;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <form>
+        <h1>Reset Password</h1>
+
+        <label>
+            <input type="text" placeholder="Enter Voter ID">
+        </label>
+
+        <label>       
+     <input type="password" placeholder="Enter new password">
+        </label>
+
+        <label>
+            <input type="password" placeholder="Confirm new password">
+        </label>
+
+        <button type="submit" class="btn reset-btn">Reset Password</button>
+        <button type="reset" class="btn clear-btn">Clear</button>
+
+        <div class="back-link">
+            <a href="Login.html">Back to Login</a>
+        </div>
+    </form>
+
+</body>
+</html>

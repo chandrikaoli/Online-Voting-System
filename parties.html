@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parties List</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-image: url('voter.jpg'); 
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: white;
+            text-align: center;
+        }
+
+        .container {
+            margin-top: 50px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 30px;
+            border-radius: 10px;
+            width: 80%;
+            margin: auto;
+        }
+
+        h1 {
+            color: orange;
+            margin-bottom: 20px;
+        }
+
+        .parties-section {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .party {
+            background: white;
+            color: black;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            width: 200px;
+        }
+
+        .party img {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 20px;
+            background: #ffcc00;
+            color: black;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .back-btn:hover {
+            background: darkorange;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Political Parties</h1>
+
+        <div class="parties-section" id="partyList">
+            <!-- Parties will be loaded dynamically -->
+        </div>
+
+        <a href="index.html" class="back-btn">⬅ Back to Home</a>
+    </div>
+
+    <script>
+        // Dynamically load the parties list
+        function loadParties() {
+            let parties = [
+                { name: "Congress", logo: "logo1.jpg" },
+                { name: "BJP", logo: "logo2.jpg" },
+                { name: "JDS", logo: "logo3.jpg" }
+            ];
+
+            let partyListDiv = document.getElementById("partyList");
+
+            parties.forEach(party => {
+                let partyDiv = document.createElement("div");
+                partyDiv.classList.add("party");
+
+                partyDiv.innerHTML = `
+                    <img src="${party.logo}" alt="${party.name} Logo">
+                    <h3>${party.name}</h3>
+                `;
+
+                partyListDiv.appendChild(partyDiv);
+            });
+        }
+
+        loadParties();
+    </script>
+
+</body>
+</html>
